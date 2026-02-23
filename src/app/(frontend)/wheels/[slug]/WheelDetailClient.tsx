@@ -1,13 +1,15 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Wheel, Media, Series, Finish } from '@/payload-types'
+import type { Wheel, Series, Finish, WheelPricing } from '@/payload-types'
+import { mergeWheelPricing, computePerWheelPrices } from '@/lib/wheelPricing'
+import { WheelInquiryForm } from './WheelInquiryForm'
 
 interface WheelDetailClientProps {
   wheel: Wheel
+  pricing: WheelPricing | null
 }
 
 function getSeriesName(series: string | Series): string {
@@ -18,8 +20,16 @@ function getFinishName(finish: string | Finish): string {
   return typeof finish === 'object' && finish?.name ? finish.name : ''
 }
 
-export function WheelDetailClient({ wheel }: WheelDetailClientProps) {
+export function WheelDetailClient({ wheel, pricing }: WheelDetailClientProps) {
   const [galleryIndex, setGalleryIndex] = useState(0)
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [frontDiameter, setFrontDiameter] = useState<string | undefined>()
+  const [frontWidth, setFrontWidth] = useState<string | undefined>()
+  const [rearDiameter, setRearDiameter] = useState<string | undefined>()
+  const [rearWidth, setRearWidth] = useState<string | undefined>()
+  const [construction, setConstruction] = useState<string | undefined>()
+  const [beadlock, setBeadlock] = useState<string | undefined>()
+
   const images = wheel.images ?? []
   const currentImage = images[galleryIndex]?.image
   const imageUrl =
@@ -29,9 +39,21 @@ export function WheelDetailClient({ wheel }: WheelDetailClientProps) {
         ? images[0].image.url
         : null
 
-  const sizes = wheel.specs?.sizes?.map((s) => s.size) ?? []
-  const offsets = wheel.specs?.offsets?.map((o) => o.offset) ?? []
-  const finishesAvailable = wheel.specs?.finishesAvailable ?? []
+  const basePrice = wheel.startingPricePerWheel ?? null
+  const effectivePricing = pricing ? mergeWheelPricing(wheel, pricing) : null
+  const priceResult =
+    basePrice && effectivePricing
+      ? computePerWheelPrices(
+          basePrice,
+          {
+            front: { diameter: frontDiameter, width: frontWidth },
+            rear: { diameter: rearDiameter, width: rearWidth },
+            construction,
+            beadlock,
+          },
+          effectivePricing,
+        )
+      : {}
 
   return (
     <div className="max-w-7xl mx-auto px-6 pb-24">
@@ -79,56 +101,94 @@ export function WheelDetailClient({ wheel }: WheelDetailClientProps) {
           )}
         </div>
 
-        <div className="lg:sticky lg:top-32 h-fit">
-          <span className="font-body text-xs uppercase tracking-wider text-gold">
-            {getSeriesName(wheel.series)}
-          </span>
-          <h1 className="font-display text-4xl md:text-5xl tracking-widest text-text mt-2">
-            {wheel.name}
-          </h1>
-          {wheel.description && (
-            <p className="font-body text-text-muted mt-6 leading-relaxed">
-              {wheel.description}
-            </p>
-          )}
+        <div className="lg:sticky lg:top-32 h-fit space-y-6">
+          <div>
+            <span className="font-body text-xs uppercase tracking-wider text-gold">
+              {getSeriesName(wheel.series)}
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl tracking-widest text-text mt-2">
+              {wheel.name}
+            </h1>
+            {wheel.description && (
+              <p className="font-body text-text-muted mt-6 leading-relaxed">
+                {wheel.description}
+              </p>
+            )}
+          </div>
 
-          {(sizes.length > 0 || offsets.length > 0 || finishesAvailable.length > 0) && (
-            <div className="mt-8 border border-border rounded-lg overflow-hidden">
-              <table className="w-full font-body text-sm">
-                <tbody>
-                  {sizes.length > 0 && (
-                    <tr className="border-b border-border">
-                      <td className="px-4 py-3 text-text-muted">Sizes</td>
-                      <td className="px-4 py-3 text-text">{sizes.join(', ')}</td>
-                    </tr>
-                  )}
-                  {offsets.length > 0 && (
-                    <tr className="border-b border-border">
-                      <td className="px-4 py-3 text-text-muted">Offsets</td>
-                      <td className="px-4 py-3 text-text">{offsets.join(', ')}</td>
-                    </tr>
-                  )}
-                  {finishesAvailable.length > 0 && (
-                    <tr>
-                      <td className="px-4 py-3 text-text-muted">Finishes</td>
-                      <td className="px-4 py-3 text-text">
-                        {finishesAvailable.map(getFinishName).join(', ')}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          {basePrice && (
+            <div className="border border-border rounded-lg p-4 bg-surface">
+              <p className="font-body text-xs uppercase tracking-wider text-text-muted">
+                Starting at
+              </p>
+              <p className="font-display text-2xl tracking-widest text-gold mt-1">
+                ${priceResult.displayPricePerWheel?.toLocaleString() ??
+                  basePrice.toLocaleString()}{' '}
+                <span className="font-body text-xs text-text-muted tracking-normal">
+                  / wheel
+                </span>
+              </p>
+              <p className="font-body text-xs text-text-muted mt-2">
+                Estimate updates as you configure your setup.
+              </p>
             </div>
           )}
 
-          <Link
-            href={`/quote?wheel=${encodeURIComponent(wheel.id)}`}
-            className="mt-8 inline-flex items-center justify-center px-8 py-3 border border-gold text-gold font-display text-sm uppercase tracking-widest hover:bg-gold hover:text-bg transition-colors"
-          >
-            Request This Wheel
-          </Link>
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={() => setPanelOpen((v) => !v)}
+              className="w-full inline-flex items-center justify-center px-8 py-3 border border-gold text-gold font-display text-sm uppercase tracking-widest hover:bg-gold hover:text-bg transition-colors"
+            >
+              {panelOpen ? 'Hide Inquiry' : 'Configure & Request Quote'}
+            </button>
+          </div>
         </div>
       </div>
+
+      <AnimatePresence initial={false}>
+        {panelOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: 16 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: 16 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-12 border border-border rounded-lg bg-surface overflow-hidden"
+          >
+            <div className="px-6 py-6 border-b border-border">
+              <p className="font-display text-sm tracking-[0.2em] text-text">
+                WHEEL INQUIRY
+              </p>
+              {basePrice && (
+                <p className="font-body text-sm text-text-muted mt-1">
+                  Estimated from{' '}
+                  <span className="text-gold font-semibold">
+                    $
+                    {priceResult.displayPricePerWheel?.toLocaleString() ??
+                      basePrice.toLocaleString()}{' '}
+                    / wheel
+                  </span>
+                </p>
+              )}
+            </div>
+            <WheelInquiryForm
+              wheelId={wheel.id}
+              pricing={effectivePricing}
+              onConfigChange={(cfg) => {
+                setFrontDiameter(cfg.frontDiameter)
+                setFrontWidth(cfg.frontWidth)
+                setRearDiameter(cfg.rearDiameter)
+                setRearWidth(cfg.rearWidth)
+                setConstruction(cfg.construction)
+                setBeadlock(cfg.beadlock)
+              }}
+              onSubmitted={() => {
+                // Keep the panel open to show success state
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -101,9 +101,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'wheel-pricing': WheelPricing;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'wheel-pricing': WheelPricingSelect<false> | WheelPricingSelect<true>;
   };
   locale: null;
   user: User;
@@ -215,6 +217,10 @@ export interface Series {
  */
 export interface Wheel {
   id: string;
+  /**
+   * Lowest base price per wheel for this design (in USD)
+   */
+  startingPricePerWheel?: number | null;
   name: string;
   /**
    * URL slug for the wheel (e.g. vfs-1)
@@ -222,26 +228,43 @@ export interface Wheel {
   slug: string;
   series: string | Series;
   description?: string | null;
-  specs?: {
-    sizes?:
+  /**
+   * Override global pricing rules for this wheel. Leave empty to use global Wheel Pricing.
+   */
+  pricingOverrides?: {
+    useOverrides?: boolean | null;
+    diameterOptions?:
       | {
-          /**
-           * e.g. 20x9, 21x10.5
-           */
-          size: string;
+          label: string;
+          value: string;
+          priceDelta: number;
           id?: string | null;
         }[]
       | null;
-    offsets?:
+    widthOptions?:
       | {
-          /**
-           * e.g. ET25, ET35
-           */
-          offset: string;
+          label: string;
+          value: string;
+          priceDelta: number;
           id?: string | null;
         }[]
       | null;
-    finishesAvailable?: (string | Finish)[] | null;
+    constructionOptions?:
+      | {
+          label: string;
+          value: string;
+          priceDelta: number;
+          id?: string | null;
+        }[]
+      | null;
+    beadlockOptions?:
+      | {
+          label: string;
+          value: string;
+          priceDelta: number;
+          id?: string | null;
+        }[]
+      | null;
   };
   images?:
     | {
@@ -315,6 +338,8 @@ export interface Testimonial {
  */
 export interface Inquiry {
   id: string;
+  firstName?: string | null;
+  lastName?: string | null;
   name: string;
   email: string;
   phone?: string | null;
@@ -330,6 +355,20 @@ export interface Inquiry {
   finishPreference?: string | null;
   boltPattern?: string | null;
   notes?: string | null;
+  frontSpecs?: {
+    diameter?: string | null;
+    width?: string | null;
+    offset?: string | null;
+  };
+  rearSpecs?: {
+    diameter?: string | null;
+    width?: string | null;
+    offset?: string | null;
+  };
+  construction?: ('monoblock' | 'modular') | null;
+  beadlock?: ('none' | 'beadlock' | 'rear_only') | null;
+  estimatedPricePerWheel?: number | null;
+  estimatedSetPrice?: number | null;
   status: 'new' | 'contacted' | 'quoted' | 'closed';
   updatedAt: string;
   createdAt: string;
@@ -501,26 +540,47 @@ export interface SeriesSelect<T extends boolean = true> {
  * via the `definition` "wheels_select".
  */
 export interface WheelsSelect<T extends boolean = true> {
+  startingPricePerWheel?: T;
   name?: T;
   slug?: T;
   series?: T;
   description?: T;
-  specs?:
+  pricingOverrides?:
     | T
     | {
-        sizes?:
+        useOverrides?: T;
+        diameterOptions?:
           | T
           | {
-              size?: T;
+              label?: T;
+              value?: T;
+              priceDelta?: T;
               id?: T;
             };
-        offsets?:
+        widthOptions?:
           | T
           | {
-              offset?: T;
+              label?: T;
+              value?: T;
+              priceDelta?: T;
               id?: T;
             };
-        finishesAvailable?: T;
+        constructionOptions?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              priceDelta?: T;
+              id?: T;
+            };
+        beadlockOptions?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              priceDelta?: T;
+              id?: T;
+            };
       };
   images?:
     | T
@@ -579,6 +639,8 @@ export interface TestimonialsSelect<T extends boolean = true> {
  * via the `definition` "inquiries_select".
  */
 export interface InquiriesSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
   name?: T;
   email?: T;
   phone?: T;
@@ -593,6 +655,24 @@ export interface InquiriesSelect<T extends boolean = true> {
   finishPreference?: T;
   boltPattern?: T;
   notes?: T;
+  frontSpecs?:
+    | T
+    | {
+        diameter?: T;
+        width?: T;
+        offset?: T;
+      };
+  rearSpecs?:
+    | T
+    | {
+        diameter?: T;
+        width?: T;
+        offset?: T;
+      };
+  construction?: T;
+  beadlock?: T;
+  estimatedPricePerWheel?: T;
+  estimatedSetPrice?: T;
   status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -698,6 +778,59 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wheel-pricing".
+ */
+export interface WheelPricing {
+  id: string;
+  /**
+   * Per-wheel price adjustments by diameter (e.g. 19", 20", 21").
+   */
+  diameterOptions?:
+    | {
+        label: string;
+        value: string;
+        priceDelta: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Per-wheel price adjustments by width (e.g. 9", 10.5").
+   */
+  widthOptions?:
+    | {
+        label: string;
+        value: string;
+        priceDelta: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Monoblock vs modular construction pricing.
+   */
+  constructionOptions?:
+    | {
+        label: string;
+        value: string;
+        priceDelta: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Beadlock options (Beadlock, No beadlock, Rear only).
+   */
+  beadlockOptions?:
+    | {
+        label: string;
+        value: string;
+        priceDelta: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -718,6 +851,47 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         id?: T;
       };
   contactEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wheel-pricing_select".
+ */
+export interface WheelPricingSelect<T extends boolean = true> {
+  diameterOptions?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        priceDelta?: T;
+        id?: T;
+      };
+  widthOptions?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        priceDelta?: T;
+        id?: T;
+      };
+  constructionOptions?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        priceDelta?: T;
+        id?: T;
+      };
+  beadlockOptions?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        priceDelta?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

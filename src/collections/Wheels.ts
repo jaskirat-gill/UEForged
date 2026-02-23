@@ -11,6 +11,16 @@ export const Wheels: CollectionConfig = {
   },
   fields: [
     {
+      name: 'startingPricePerWheel',
+      type: 'number',
+      label: 'Starting price per wheel',
+      required: false,
+      admin: {
+        description: 'Lowest base price per wheel for this design (in USD)',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'name',
       type: 'text',
       required: true,
@@ -36,41 +46,83 @@ export const Wheels: CollectionConfig = {
       type: 'textarea',
     },
     {
-      name: 'specs',
+      name: 'pricingOverrides',
       type: 'group',
+      label: 'Pricing overrides',
+      admin: {
+        description:
+          'Override global pricing rules for this wheel. Leave empty to use global Wheel Pricing.',
+      },
       fields: [
         {
-          name: 'sizes',
+          name: 'useOverrides',
+          type: 'checkbox',
+          label: 'Use overrides for this wheel',
+          defaultValue: false,
+        },
+        {
+          name: 'diameterOptions',
           type: 'array',
-          label: 'Sizes Available',
+          label: 'Diameter options (overrides)',
+          admin: { condition: (_, siblingData) => Boolean(siblingData.useOverrides) },
           fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'value', type: 'text', required: true },
             {
-              name: 'size',
-              type: 'text',
+              name: 'priceDelta',
+              type: 'number',
+              label: 'Price delta per wheel',
               required: true,
-              admin: { description: 'e.g. 20x9, 21x10.5' },
             },
           ],
         },
         {
-          name: 'offsets',
+          name: 'widthOptions',
           type: 'array',
-          label: 'Offsets',
+          label: 'Width options (overrides)',
+          admin: { condition: (_, siblingData) => Boolean(siblingData.useOverrides) },
           fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'value', type: 'text', required: true },
             {
-              name: 'offset',
-              type: 'text',
+              name: 'priceDelta',
+              type: 'number',
+              label: 'Price delta per wheel',
               required: true,
-              admin: { description: 'e.g. ET25, ET35' },
             },
           ],
         },
         {
-          name: 'finishesAvailable',
-          type: 'relationship',
-          relationTo: 'finishes',
-          hasMany: true,
-          label: 'Finishes Available',
+          name: 'constructionOptions',
+          type: 'array',
+          label: 'Construction options (overrides)',
+          admin: { condition: (_, siblingData) => Boolean(siblingData.useOverrides) },
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'value', type: 'text', required: true },
+            {
+              name: 'priceDelta',
+              type: 'number',
+              label: 'Price delta per wheel',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'beadlockOptions',
+          type: 'array',
+          label: 'Beadlock options (overrides)',
+          admin: { condition: (_, siblingData) => Boolean(siblingData.useOverrides) },
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'value', type: 'text', required: true },
+            {
+              name: 'priceDelta',
+              type: 'number',
+              label: 'Price delta per wheel',
+              required: true,
+            },
+          ],
         },
       ],
     },

@@ -15,6 +15,7 @@ import { Builds } from './collections/Builds'
 import { Testimonials } from './collections/Testimonials'
 import { Inquiries } from './collections/Inquiries'
 import { SiteSettings } from './globals/SiteSettings'
+import { WheelPricing } from './globals/WheelPricing'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -26,17 +27,8 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [
-    Users,
-    Media,
-    Finishes,
-    Series,
-    Wheels,
-    Builds,
-    Testimonials,
-    Inquiries,
-  ],
-  globals: [SiteSettings],
+  collections: [Users, Media, Finishes, Series, Wheels, Builds, Testimonials, Inquiries],
+  globals: [SiteSettings, WheelPricing],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

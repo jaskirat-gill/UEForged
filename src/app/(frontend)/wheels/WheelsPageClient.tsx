@@ -3,33 +3,26 @@
 import React, { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { WheelCard } from '@/components/sections/WheelCard'
-import type { Wheel, Finish, Series } from '@/payload-types'
+import type { Wheel, Series } from '@/payload-types'
 
 interface WheelsPageClientProps {
   initialWheels: Wheel[]
-  finishes: Finish[]
   series: Series[]
 }
 
 export function WheelsPageClient({
   initialWheels,
-  finishes,
   series,
 }: WheelsPageClientProps) {
   const [filterSeries, setFilterSeries] = useState<string | null>(null)
-  const [filterFinish, setFilterFinish] = useState<string | null>(null)
 
   const filteredWheels = useMemo(() => {
     return initialWheels.filter((w) => {
       if (filterSeries && (typeof w.series === 'object' ? w.series.id : w.series) !== filterSeries)
         return false
-      if (filterFinish) {
-        const ids = w.specs?.finishesAvailable?.map((f) => (typeof f === 'object' ? f.id : f))
-        if (!ids?.includes(filterFinish)) return false
-      }
       return true
     })
-  }, [initialWheels, filterSeries, filterFinish])
+  }, [initialWheels, filterSeries])
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-16">
@@ -47,7 +40,7 @@ export function WheelsPageClient({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        Filter by series or finish. Each wheel is forged to order.
+        Filter by series. Each wheel is forged to order.
       </motion.p>
 
       <motion.div
@@ -66,19 +59,6 @@ export function WheelsPageClient({
           {series.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="bg-surface border border-border text-text font-body px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gold"
-          value={filterFinish ?? ''}
-          onChange={(e) => setFilterFinish(e.target.value || null)}
-          aria-label="Filter by finish"
-        >
-          <option value="">All finishes</option>
-          {finishes.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
             </option>
           ))}
         </select>

@@ -53,10 +53,10 @@ export function AboutTeaserReveal({
             your vision.
           </p>
           <Link
-            href="/about"
+            href="/wheels"
             className="font-body text-sm uppercase tracking-wider text-gold hover:text-gold-highlight transition-colors"
           >
-            Our process →
+            View collection →
           </Link>
         </motion.div>
       </div>

@@ -44,11 +44,6 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="font-body text-sm text-text-muted hover:text-gold">
-                  About
-                </Link>
-              </li>
-              <li>
                 <Link href="/quote" className="font-body text-sm text-text-muted hover:text-gold">
                   Get a Quote
                 </Link>
@@ -79,10 +74,18 @@ export async function Footer() {
             )}
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 border-t border-border flex flex-wrap items-center justify-between gap-4">
           <p className="font-body text-xs text-text-muted">
             © {new Date().getFullYear()} UEForged. All rights reserved.
           </p>
+          <a
+            href="https://jaskiratgill.ca"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-body text-xs text-text-muted hover:text-gold transition-colors"
+          >
+            Built by Jaskirat Gill
+          </a>
         </div>
       </div>
     </footer>

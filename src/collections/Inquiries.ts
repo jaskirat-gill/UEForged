@@ -14,6 +14,14 @@ export const Inquiries: CollectionConfig = {
   },
   fields: [
     {
+      name: 'firstName',
+      type: 'text',
+    },
+    {
+      name: 'lastName',
+      type: 'text',
+    },
+    {
       name: 'name',
       type: 'text',
       required: true,
@@ -66,6 +74,59 @@ export const Inquiries: CollectionConfig = {
     {
       name: 'notes',
       type: 'textarea',
+    },
+    {
+      name: 'frontSpecs',
+      type: 'group',
+      label: 'Front Wheel Specs',
+      fields: [
+        { name: 'diameter', type: 'text' },
+        { name: 'width', type: 'text' },
+        { name: 'offset', type: 'text' },
+      ],
+    },
+    {
+      name: 'rearSpecs',
+      type: 'group',
+      label: 'Rear Wheel Specs',
+      fields: [
+        { name: 'diameter', type: 'text' },
+        { name: 'width', type: 'text' },
+        { name: 'offset', type: 'text' },
+      ],
+    },
+    {
+      name: 'construction',
+      type: 'select',
+      options: [
+        { label: 'Monoblock', value: 'monoblock' },
+        { label: 'Modular', value: 'modular' },
+      ],
+    },
+    {
+      name: 'beadlock',
+      type: 'select',
+      options: [
+        { label: 'No beadlock', value: 'none' },
+        { label: 'Beadlock', value: 'beadlock' },
+        { label: 'Rear only', value: 'rear_only' },
+      ],
+    },
+    {
+      name: 'estimatedPricePerWheel',
+      type: 'number',
+      label: 'Estimated price per wheel',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'estimatedSetPrice',
+      type: 'number',
+      label: 'Estimated set price',
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'status',
