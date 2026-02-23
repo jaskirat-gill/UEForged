@@ -1,59 +1,55 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
 import React from 'react'
-import { fileURLToPath } from 'url'
-
+import { getPayload } from 'payload'
 import config from '@/payload.config'
-import './styles.css'
+import { Hero } from '@/components/sections/Hero'
+import { FeaturedWheels } from '@/components/sections/FeaturedWheels'
+import { ParallaxWithAbout } from '@/components/sections/ParallaxWithAbout'
+import { TestimonialCarousel } from '@/components/sections/TestimonialCarousel'
+import { CTABanner } from '@/components/sections/CTABanner'
+
+function getMediaUrl(media: unknown): string | null {
+  if (media && typeof media === 'object' && 'url' in media && typeof (media as { url: unknown }).url === 'string') {
+    return (media as { url: string }).url
+  }
+  return null
+}
+
+async function getHomeData() {
+  const payload = await getPayload({ config: await config })
+  const [settings, testimonials] = await Promise.all([
+    payload.findGlobal({ slug: 'site-settings', depth: 1 }),
+    payload.find({
+      collection: 'testimonials',
+      limit: 5,
+    }),
+  ])
+  return { settings, testimonials: testimonials.docs }
+}
 
 export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
-
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+  const { settings, testimonials } = await getHomeData()
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
-        </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
+    <>
+      <Hero
+        headline={settings?.heroHeadline ?? 'FORGED TO PERFORM'}
+        subtext={settings?.heroSubtext ?? null}
+        heroMedia={
+          settings?.heroMedia && typeof settings.heroMedia === 'object'
+            ? { url: settings.heroMedia.url ?? null }
+            : null
+        }
+      />
+      <FeaturedWheels backgroundImageUrl={getMediaUrl(settings?.featuredWheelsBackground)} />
+      <ParallaxWithAbout
+        parallaxImageUrl={getMediaUrl(settings?.showcaseMedia)}
+        aboutBackgroundUrl={getMediaUrl(settings?.aboutBackground)}
+      />
+      <TestimonialCarousel
+        testimonials={testimonials}
+        backgroundImageUrl={getMediaUrl(settings?.testimonialsBackground)}
+      />
+      <CTABanner backgroundImageUrl={getMediaUrl(settings?.ctaBackground)} />
+    </>
   )
 }

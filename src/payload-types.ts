@@ -69,6 +69,12 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    finishes: Finish;
+    series: Series;
+    wheels: Wheel;
+    builds: Build;
+    testimonials: Testimonial;
+    inquiries: Inquiry;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +84,12 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    finishes: FinishesSelect<false> | FinishesSelect<true>;
+    series: SeriesSelect<false> | SeriesSelect<true>;
+    wheels: WheelsSelect<false> | WheelsSelect<true>;
+    builds: BuildsSelect<false> | BuildsSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -87,8 +99,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   user: User;
   jobs: {
@@ -160,6 +176,166 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "finishes".
+ */
+export interface Finish {
+  id: string;
+  name: string;
+  /**
+   * URL-friendly identifier (e.g. gloss-black, matte-bronze)
+   */
+  slug: string;
+  description?: string | null;
+  /**
+   * Hex color code for swatch preview (e.g. #C9A84C)
+   */
+  hex?: string | null;
+  /**
+   * Optional swatch image
+   */
+  swatchImage?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "series".
+ */
+export interface Series {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wheels".
+ */
+export interface Wheel {
+  id: string;
+  name: string;
+  /**
+   * URL slug for the wheel (e.g. vfs-1)
+   */
+  slug: string;
+  series: string | Series;
+  description?: string | null;
+  specs?: {
+    sizes?:
+      | {
+          /**
+           * e.g. 20x9, 21x10.5
+           */
+          size: string;
+          id?: string | null;
+        }[]
+      | null;
+    offsets?:
+      | {
+          /**
+           * e.g. ET25, ET35
+           */
+          offset: string;
+          id?: string | null;
+        }[]
+      | null;
+    finishesAvailable?: (string | Finish)[] | null;
+  };
+  images?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Show on homepage featured section
+   */
+  featured?: boolean | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builds".
+ */
+export interface Build {
+  id: string;
+  /**
+   * Display title for the build
+   */
+  title: string;
+  slug: string;
+  carMake: string;
+  carModel: string;
+  year: number;
+  wheelUsed?: (string | null) | Wheel;
+  /**
+   * Finish name as shown on this build
+   */
+  finish?: string | null;
+  photographerCredit?: string | null;
+  images?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: string;
+  customerName: string;
+  location?: string | null;
+  quote: string;
+  /**
+   * 1-5 stars
+   */
+  rating?: number | null;
+  image?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries".
+ */
+export interface Inquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  carDetails?: {
+    make?: string | null;
+    model?: string | null;
+    year?: string | null;
+  };
+  /**
+   * Wheel series or specific wheel of interest
+   */
+  wheelInterest?: (string | null) | Wheel;
+  finishPreference?: string | null;
+  boltPattern?: string | null;
+  notes?: string | null;
+  status: 'new' | 'contacted' | 'quoted' | 'closed';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -189,6 +365,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'finishes';
+        value: string | Finish;
+      } | null)
+    | ({
+        relationTo: 'series';
+        value: string | Series;
+      } | null)
+    | ({
+        relationTo: 'wheels';
+        value: string | Wheel;
+      } | null)
+    | ({
+        relationTo: 'builds';
+        value: string | Build;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: string | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'inquiries';
+        value: string | Inquiry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -274,6 +474,131 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "finishes_select".
+ */
+export interface FinishesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  hex?: T;
+  swatchImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "series_select".
+ */
+export interface SeriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wheels_select".
+ */
+export interface WheelsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  series?: T;
+  description?: T;
+  specs?:
+    | T
+    | {
+        sizes?:
+          | T
+          | {
+              size?: T;
+              id?: T;
+            };
+        offsets?:
+          | T
+          | {
+              offset?: T;
+              id?: T;
+            };
+        finishesAvailable?: T;
+      };
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  featured?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "builds_select".
+ */
+export interface BuildsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  carMake?: T;
+  carModel?: T;
+  year?: T;
+  wheelUsed?: T;
+  finish?: T;
+  photographerCredit?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  customerName?: T;
+  location?: T;
+  quote?: T;
+  rating?: T;
+  image?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries_select".
+ */
+export interface InquiriesSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  carDetails?:
+    | T
+    | {
+        make?: T;
+        model?: T;
+        year?: T;
+      };
+  wheelInterest?: T;
+  finishPreference?: T;
+  boltPattern?: T;
+  notes?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -311,6 +636,91 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  /**
+   * Main hero headline
+   */
+  heroHeadline?: string | null;
+  /**
+   * Optional subtext below headline
+   */
+  heroSubtext?: string | null;
+  /**
+   * Hero background image or video thumbnail
+   */
+  heroMedia?: (string | null) | Media;
+  /**
+   * Background image for Featured Wheels section
+   */
+  featuredWheelsBackground?: (string | null) | Media;
+  /**
+   * Background image for Why Forged section
+   */
+  aboutBackground?: (string | null) | Media;
+  /**
+   * Background image for Testimonials section
+   */
+  testimonialsBackground?: (string | null) | Media;
+  /**
+   * Background image for CTA / Your Build Starts Here section
+   */
+  ctaBackground?: (string | null) | Media;
+  /**
+   * Image for scroll parallax showcase (e.g. wheel close-up)
+   */
+  showcaseMedia?: (string | null) | Media;
+  /**
+   * Optional stats or tagline for ticker bar
+   */
+  statsTickerText?: string | null;
+  socialLinks?:
+    | {
+        /**
+         * e.g. Instagram, Facebook
+         */
+        platform: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Primary contact email for inquiries
+   */
+  contactEmail?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  heroHeadline?: T;
+  heroSubtext?: T;
+  heroMedia?: T;
+  featuredWheelsBackground?: T;
+  aboutBackground?: T;
+  testimonialsBackground?: T;
+  ctaBackground?: T;
+  showcaseMedia?: T;
+  statsTickerText?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  contactEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

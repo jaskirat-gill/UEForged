@@ -4,9 +4,17 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import 'dotenv/config'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Finishes } from './collections/Finishes'
+import { Series } from './collections/Series'
+import { Wheels } from './collections/Wheels'
+import { Builds } from './collections/Builds'
+import { Testimonials } from './collections/Testimonials'
+import { Inquiries } from './collections/Inquiries'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -18,7 +26,17 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [
+    Users,
+    Media,
+    Finishes,
+    Series,
+    Wheels,
+    Builds,
+    Testimonials,
+    Inquiries,
+  ],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

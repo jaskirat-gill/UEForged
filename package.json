@@ -10,6 +10,7 @@
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "seed": "cross-env NODE_OPTIONS=--no-deprecation tsx src/seed.ts",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
@@ -18,18 +19,24 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@payloadcms/db-mongodb": "3.77.0",
     "@payloadcms/next": "3.77.0",
     "@payloadcms/richtext-lexical": "3.77.0",
     "@payloadcms/ui": "3.77.0",
+    "@tailwindcss/postcss": "^4.2.0",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",
+    "framer-motion": "^12.34.3",
     "graphql": "^16.8.1",
     "next": "15.4.11",
     "payload": "3.77.0",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "react-hook-form": "^7.71.2",
     "sharp": "0.34.2",
-    "@payloadcms/db-mongodb": "3.77.0"
+    "tailwindcss": "^4.2.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
