@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { BuildsGalleryClient } from './BuildsGalleryClient'
 
+export const dynamic = 'force-dynamic'
+
 async function getBuilds() {
   const payload = await getPayload({ config: await config })
   const result = await payload.find({

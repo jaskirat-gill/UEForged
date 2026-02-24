@@ -4,6 +4,8 @@ import config from '@/payload.config'
 import { QuoteForm } from './QuoteForm'
 import { FadeUpOnScroll } from '@/components/animations/FadeUpOnScroll'
 
+export const dynamic = 'force-dynamic'
+
 async function getWheelsForSelect() {
   const payload = await getPayload({ config: await config })
   const result = await payload.find({

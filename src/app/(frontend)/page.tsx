@@ -7,6 +7,8 @@ import { ParallaxWithAbout } from '@/components/sections/ParallaxWithAbout'
 import { TestimonialCarousel } from '@/components/sections/TestimonialCarousel'
 import { CTABanner } from '@/components/sections/CTABanner'
 
+export const dynamic = 'force-dynamic'
+
 function getMediaUrl(media: unknown): string | null {
   if (media && typeof media === 'object' && 'url' in media && typeof (media as { url: unknown }).url === 'string') {
     return (media as { url: string }).url
