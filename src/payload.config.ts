@@ -47,12 +47,11 @@ export default buildConfig({
   sharp,
   plugins: [
     vercelBlobStorage({
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      enabled: true,
       collections: {
         media: true,
       },
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
-      // Client uploads bypass Vercel serverless 4.5MB limit by uploading directly from the browser.
       clientUploads: true,
     }),
   ],
