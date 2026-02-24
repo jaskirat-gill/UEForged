@@ -85,7 +85,7 @@ Set at least:
 
 ```bash
 pnpm run build
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
@@ -145,7 +145,7 @@ Media is stored on disk in the appâ€™s `media/` directory (relative to the appâ€
 ## Summary
 
 - **App**: One Next.js app (Payload included) on port 3000.
-- **PM2**: `ecosystem.config.js` runs that app; use `pm2 logs` and `pm2 restart all` as needed.
+- **PM2**: `ecosystem.config.cjs` runs that app; use `pm2 logs` and `pm2 restart all` as needed.
 - **Nginx**: Proxies port 80/443 to 3000.
 - **MongoDB**: Local (`mongod`) or Atlas; set `DATABASE_URL` in `.env`.
 - **SSL**: Certbot configures Nginx for HTTPS.

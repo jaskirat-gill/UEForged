@@ -1,5 +1,5 @@
 /**
- * PM2 ecosystem file. Run from this directory: pm2 start ecosystem.config.js
+ * PM2 ecosystem file. Run from this directory: pm2 start ecosystem.config.cjs
  * Single app: Next.js (frontend + Payload admin at /admin, API at /api) on port 3000.
  */
 module.exports = {
