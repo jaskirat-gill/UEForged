@@ -1,7 +1,6 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -45,14 +44,4 @@ export default buildConfig({
     apiKey: process.env.RESEND_API_KEY || '',
   }),
   sharp,
-  plugins: [
-    vercelBlobStorage({
-      enabled: true,
-      collections: {
-        media: true,
-      },
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-      clientUploads: true,
-    }),
-  ],
 })
