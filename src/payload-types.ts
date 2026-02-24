@@ -365,8 +365,14 @@ export interface Inquiry {
     width?: string | null;
     offset?: string | null;
   };
-  construction?: ('monoblock' | 'modular') | null;
-  beadlock?: ('none' | 'beadlock' | 'rear_only') | null;
+  /**
+   * Construction type (e.g. monoblock, modular). Options come from Wheel Pricing.
+   */
+  construction?: string | null;
+  /**
+   * Beadlock option (e.g. none, beadlock, rear_only). Options come from Wheel Pricing.
+   */
+  beadlock?: string | null;
   estimatedPricePerWheel?: number | null;
   estimatedSetPrice?: number | null;
   status: 'new' | 'contacted' | 'quoted' | 'closed';

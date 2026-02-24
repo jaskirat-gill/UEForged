@@ -97,20 +97,17 @@ export const Inquiries: CollectionConfig = {
     },
     {
       name: 'construction',
-      type: 'select',
-      options: [
-        { label: 'Monoblock', value: 'monoblock' },
-        { label: 'Modular', value: 'modular' },
-      ],
+      type: 'text',
+      admin: {
+        description: 'Construction type (e.g. monoblock, modular). Options come from Wheel Pricing.',
+      },
     },
     {
       name: 'beadlock',
-      type: 'select',
-      options: [
-        { label: 'No beadlock', value: 'none' },
-        { label: 'Beadlock', value: 'beadlock' },
-        { label: 'Rear only', value: 'rear_only' },
-      ],
+      type: 'text',
+      admin: {
+        description: 'Beadlock option (e.g. none, beadlock, rear_only). Options come from Wheel Pricing.',
+      },
     },
     {
       name: 'estimatedPricePerWheel',

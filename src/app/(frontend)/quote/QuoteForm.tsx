@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
+import { InquirySuccessView } from '@/components/InquirySuccessView'
 import { submitInquiry } from './actions'
 
 const schema = z.object({
@@ -77,41 +78,9 @@ export function QuoteForm({ wheels, prefilledWheel }: QuoteFormProps) {
 
   if (success) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center py-16"
-      >
-        <motion.div
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-20 h-20 mx-auto mb-8 rounded-full border-2 border-gold flex items-center justify-center"
-        >
-          <svg
-            className="w-10 h-10 text-gold"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <motion.path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-            />
-          </svg>
-        </motion.div>
-        <h2 className="font-display text-3xl tracking-widest text-gold">
-          THANK YOU
-        </h2>
-        <p className="font-body text-text-muted mt-4 max-w-md mx-auto">
-          We&apos;ve received your inquiry and will be in touch soon.
-        </p>
-      </motion.div>
+      <InquirySuccessView
+        cta={{ label: 'Explore our wheels', href: '/wheels' }}
+      />
     )
   }
 

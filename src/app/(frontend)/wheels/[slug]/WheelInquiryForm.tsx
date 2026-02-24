@@ -1,45 +1,91 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { motion } from 'framer-motion'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
+import { InquirySuccessView } from '@/components/InquirySuccessView'
 import type { EffectivePricing } from '@/lib/wheelPricing'
 import { submitWheelInquiry } from './actions'
 
-const schema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Valid email is required'),
-  phone: z.string().optional(),
+const DEFAULT_CONSTRUCTION_OPTIONS = [
+  { value: 'monoblock', label: 'Monoblock' },
+  { value: 'modular', label: 'Modular' },
+] as const
 
-  carYear: z.string().min(1, 'Year is required'),
-  carMake: z.string().min(1, 'Make is required'),
-  carModel: z.string().min(1, 'Model is required'),
+const DEFAULT_BEADLOCK_OPTIONS = [
+  { value: 'none', label: 'No beadlock' },
+  { value: 'beadlock', label: 'Beadlock' },
+  { value: 'rear_only', label: 'Rear only' },
+] as const
 
-  frontDiameter: z.string().min(1, 'Front diameter is required'),
-  frontWidth: z.string().min(1, 'Front width is required'),
-  frontOffset: z.string().optional(),
+function buildSchema(
+  constructionValues: readonly string[],
+  beadlockValues: readonly string[],
+) {
+  const constructionSchema =
+    constructionValues.length > 0
+      ? z.string().refine((v) => constructionValues.includes(v), {
+          message: 'Please select a valid construction option',
+        })
+      : z.string()
+  const beadlockSchema =
+    beadlockValues.length > 0
+      ? z.string().refine((v) => beadlockValues.includes(v), {
+          message: 'Please select a valid beadlock option',
+        })
+      : z.string()
+  return z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().email('Valid email is required'),
+    phone: z.string().optional(),
 
-  rearDiameter: z.string().min(1, 'Rear diameter is required'),
-  rearWidth: z.string().min(1, 'Rear width is required'),
-  rearOffset: z.string().optional(),
+    carYear: z.string().min(1, 'Year is required'),
+    carMake: z.string().min(1, 'Make is required'),
+    carModel: z.string().min(1, 'Model is required'),
 
-  construction: z.enum(['monoblock', 'modular']),
-  beadlock: z.enum(['none', 'beadlock', 'rear_only']),
+    frontDiameter: z.string().min(1, 'Front diameter is required'),
+    frontWidth: z.string().min(1, 'Front width is required'),
+    frontOffset: z.string().optional(),
 
-  additionalDetails: z.string().min(1, 'Additional details are required'),
-})
+    rearDiameter: z.string().min(1, 'Rear diameter is required'),
+    rearWidth: z.string().min(1, 'Rear width is required'),
+    rearOffset: z.string().optional(),
 
-type FormValues = z.infer<typeof schema>
+    construction: constructionSchema,
+    beadlock: beadlockSchema,
+
+    additionalDetails: z.string().min(1, 'Additional details are required'),
+  })
+}
+
+type FormValues = {
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string
+  carYear: string
+  carMake: string
+  carModel: string
+  frontDiameter: string
+  frontWidth: string
+  frontOffset?: string
+  rearDiameter: string
+  rearWidth: string
+  rearOffset?: string
+  construction: string
+  beadlock: string
+  additionalDetails: string
+}
 
 type Props = {
   wheelId: string
+  wheelName?: string | null
   pricing: EffectivePricing | null
   onConfigChange: (config: {
     frontDiameter?: string
@@ -52,9 +98,28 @@ type Props = {
   onSubmitted?: () => void
 }
 
-export function WheelInquiryForm({ wheelId, pricing, onConfigChange, onSubmitted }: Props) {
+export function WheelInquiryForm({ wheelId, wheelName, pricing, onConfigChange, onSubmitted }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const constructionOptions = useMemo(() => {
+    if (!pricing?.constructionOptions?.length) return [...DEFAULT_CONSTRUCTION_OPTIONS]
+    return pricing.constructionOptions.map((o) => ({ value: o.value, label: o.label }))
+  }, [pricing])
+
+  const beadlockOptions = useMemo(() => {
+    if (!pricing?.beadlockOptions?.length) return [...DEFAULT_BEADLOCK_OPTIONS]
+    return pricing.beadlockOptions.map((o) => ({ value: o.value, label: o.label }))
+  }, [pricing])
+
+  const schema = useMemo(
+    () =>
+      buildSchema(
+        constructionOptions.map((o) => o.value),
+        beadlockOptions.map((o) => o.value),
+      ),
+    [constructionOptions, beadlockOptions],
+  )
 
   const {
     register,
@@ -64,7 +129,7 @@ export function WheelInquiryForm({ wheelId, pricing, onConfigChange, onSubmitted
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      beadlock: 'none',
+      beadlock: beadlockOptions[0]?.value ?? 'none',
     },
   })
 
@@ -127,35 +192,16 @@ export function WheelInquiryForm({ wheelId, pricing, onConfigChange, onSubmitted
 
   if (success) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-10">
-        <h3 className="font-display text-2xl tracking-widest text-gold">Inquiry received</h3>
-        <p className="font-body text-text-muted mt-2">
-          We’ll reach out shortly with next steps.
-        </p>
-      </motion.div>
+      <InquirySuccessView
+        context={wheelName ? `Your ${wheelName} inquiry` : undefined}
+        compact
+        cta={{ label: 'Browse more wheels', href: '/wheels' }}
+      />
     )
   }
 
   const diameterOptions = pricing.diameterOptions.map((o) => ({ value: o.value, label: o.label }))
   const widthOptions = pricing.widthOptions.map((o) => ({ value: o.value, label: o.label }))
-  const constructionOptionsRaw = pricing.constructionOptions.map((o) => ({ value: o.value, label: o.label }))
-  const constructionOptions =
-    constructionOptionsRaw.length > 0
-      ? constructionOptionsRaw
-      : [
-          { value: 'monoblock', label: 'Monoblock' },
-          { value: 'modular', label: 'Modular' },
-        ]
-
-  const beadlockOptionsRaw = pricing.beadlockOptions.map((o) => ({ value: o.value, label: o.label }))
-  const beadlockOptions =
-    beadlockOptionsRaw.length > 0
-      ? beadlockOptionsRaw
-      : [
-          { value: 'none', label: 'No beadlock' },
-          { value: 'beadlock', label: 'Beadlock' },
-          { value: 'rear_only', label: 'Rear only' },
-        ]
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-8 space-y-10">

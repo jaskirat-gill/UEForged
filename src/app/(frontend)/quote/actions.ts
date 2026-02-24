@@ -2,6 +2,7 @@
 
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { sendInquiryNotification } from '@/lib/sendInquiryNotification'
 
 export type InquiryFormData = {
   name: string
@@ -37,6 +38,21 @@ export async function submitInquiry(data: InquiryFormData): Promise<{ ok: true }
         status: 'new',
       },
     })
+
+    await sendInquiryNotification(payload, {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      carDetails: {
+        make: data.carMake,
+        model: data.carModel,
+        year: data.carYear,
+      },
+      notes: data.notes,
+    }).catch((err) => {
+      console.error('[submitInquiry] Failed to send notification email:', err)
+    })
+
     return { ok: true }
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Failed to submit inquiry'

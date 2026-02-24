@@ -3,6 +3,7 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import type { Wheel, WheelPricing } from '@/payload-types'
+import { sendInquiryNotification } from '@/lib/sendInquiryNotification'
 import { computePerWheelPrices, mergeWheelPricing } from '@/lib/wheelPricing'
 
 export type WheelInquiryData = {
@@ -25,8 +26,8 @@ export type WheelInquiryData = {
   rearWidth: string
   rearOffset?: string
 
-  construction: 'monoblock' | 'modular'
-  beadlock: 'none' | 'beadlock' | 'rear_only'
+  construction: string
+  beadlock: string
 
   additionalDetails: string
 }
@@ -104,6 +105,35 @@ export async function submitWheelInquiry(
         estimatedSetPrice: estimatedSet,
         status: 'new',
       },
+    })
+
+    await sendInquiryNotification(payload, {
+      name: `${data.firstName} ${data.lastName}`.trim(),
+      email: data.email,
+      phone: data.phone,
+      carDetails: {
+        year: data.carYear,
+        make: data.carMake,
+        model: data.carModel,
+      },
+      wheelName: wheel.name ?? undefined,
+      frontSpecs: {
+        diameter: data.frontDiameter,
+        width: data.frontWidth,
+        offset: data.frontOffset,
+      },
+      rearSpecs: {
+        diameter: data.rearDiameter,
+        width: data.rearWidth,
+        offset: data.rearOffset,
+      },
+      construction: data.construction,
+      beadlock: data.beadlock,
+      estimatedPricePerWheel: estimatedPerWheel ?? undefined,
+      estimatedSetPrice: estimatedSet,
+      notes: data.additionalDetails || undefined,
+    }).catch((err) => {
+      console.error('[submitWheelInquiry] Failed to send notification email:', err)
     })
 
     return { ok: true }

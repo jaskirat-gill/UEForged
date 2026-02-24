@@ -173,6 +173,7 @@ export function WheelDetailClient({ wheel, pricing }: WheelDetailClientProps) {
             </div>
             <WheelInquiryForm
               wheelId={wheel.id}
+              wheelName={wheel.name}
               pricing={effectivePricing}
               onConfigChange={(cfg) => {
                 setFrontDiameter(cfg.frontDiameter)
