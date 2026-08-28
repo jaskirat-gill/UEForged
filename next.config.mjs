@@ -8,6 +8,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'http', hostname: 'localhost', pathname: '/**' },
       { protocol: 'https', hostname: 'localhost', pathname: '/**' },
+      { protocol: 'https', hostname: 'ueforged.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.ueforged.com', pathname: '/**' },
     ],
   },
   webpack: (webpackConfig) => {
