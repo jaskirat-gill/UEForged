@@ -28,6 +28,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || undefined,
   collections: [Users, Media, Finishes, Series, Wheels, Builds, Testimonials, Inquiries],
   globals: [SiteSettings, WheelPricing],
   editor: lexicalEditor(),

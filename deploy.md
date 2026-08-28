@@ -63,7 +63,7 @@ cd /var/www
 sudo mkdir -p /var/www
 sudo chown "$USER":"$USER" /var/www
 git clone <your-repo-url> ueforged
-cd ueforged/ue-forged
+cd ueforged
 pnpm install
 ```
 
@@ -106,6 +106,9 @@ Contents (replace `yourdomain.com` and ensure upstream port matches your app):
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
+
+    # Allow media uploads through the Payload admin (Nginx default is 1MB)
+    client_max_body_size 25M;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
