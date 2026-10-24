@@ -34,6 +34,11 @@ export async function Footer() {
             <h3 className="font-display text-sm tracking-widest text-text mb-4">Navigate</h3>
             <ul className="space-y-2">
               <li>
+                <Link href="/catalog" className="font-body text-sm text-text-muted hover:text-gold">
+                  Catalog
+                </Link>
+              </li>
+              <li>
                 <Link href="/wheels" className="font-body text-sm text-text-muted hover:text-gold">
                   Wheels
                 </Link>
