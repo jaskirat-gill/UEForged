@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { staffOnly } from '../access/roles'
 
 export const Wheels: CollectionConfig = {
   slug: 'wheels',
@@ -8,6 +9,9 @@ export const Wheels: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: staffOnly,
+    update: staffOnly,
+    delete: staffOnly,
   },
   fields: [
     {

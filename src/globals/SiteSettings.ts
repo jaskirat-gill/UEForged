@@ -1,10 +1,12 @@
 import type { GlobalConfig } from 'payload'
+import { staffOnly } from '../access/roles'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: 'Site Settings',
   access: {
     read: () => true,
+    update: staffOnly,
   },
   fields: [
     {

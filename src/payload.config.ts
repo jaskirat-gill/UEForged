@@ -15,6 +15,8 @@ import { Wheels } from './collections/Wheels'
 import { Builds } from './collections/Builds'
 import { Testimonials } from './collections/Testimonials'
 import { Inquiries } from './collections/Inquiries'
+import { Orders } from './collections/Orders'
+import { Dealers } from './collections/Dealers'
 import { SiteSettings } from './globals/SiteSettings'
 import { WheelPricing } from './globals/WheelPricing'
 
@@ -27,9 +29,19 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      afterNavLinks: ['/components/admin/PriceChartNavLink#PriceChartNavLink'],
+      views: {
+        priceChart: {
+          Component: '/components/admin/PriceChartView#PriceChartView',
+          path: '/price-chart',
+          meta: { title: 'Price Chart' },
+        },
+      },
+    },
   },
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || undefined,
-  collections: [Users, Media, Finishes, Series, Wheels, Builds, Testimonials, Inquiries],
+  collections: [Users, Media, Finishes, Series, Wheels, Builds, Testimonials, Inquiries, Orders, Dealers],
   globals: [SiteSettings, WheelPricing],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

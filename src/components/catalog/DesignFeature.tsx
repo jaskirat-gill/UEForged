@@ -57,12 +57,20 @@ export function DesignFeature({ design, reverse = false }: DesignFeatureProps) {
           </dl>
 
           {design.wheelSlug && (
-            <Link
-              href={`/wheels/${design.wheelSlug}`}
-              className="mt-8 inline-block font-body text-sm uppercase tracking-wider text-gold hover:text-gold-highlight transition-colors"
-            >
-              Configure this design →
-            </Link>
+            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
+              <Link
+                href={`/order?wheel=${design.wheelSlug}`}
+                className="font-body text-sm uppercase tracking-wider text-gold hover:text-gold-highlight transition-colors"
+              >
+                Order this design →
+              </Link>
+              <Link
+                href={`/wheels/${design.wheelSlug}`}
+                className="font-body text-sm uppercase tracking-wider text-text-muted hover:text-gold transition-colors"
+              >
+                View details
+              </Link>
+            </div>
           )}
         </FadeUpOnScroll>
       </div>

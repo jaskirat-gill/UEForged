@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { staffOnly } from '../access/roles'
 
 export const Inquiries: CollectionConfig = {
   slug: 'inquiries',
@@ -7,10 +8,11 @@ export const Inquiries: CollectionConfig = {
     defaultColumns: ['name', 'email', 'wheelInterest', 'status', 'createdAt'],
   },
   access: {
-    read: ({ req }) => Boolean(req.user),
-    create: () => true,
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    read: staffOnly,
+    // Quote forms save server-side (Local API); the REST route stays staff-only.
+    create: staffOnly,
+    update: staffOnly,
+    delete: staffOnly,
   },
   fields: [
     {

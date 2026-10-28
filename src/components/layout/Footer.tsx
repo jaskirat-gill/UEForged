@@ -49,6 +49,16 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/order" className="font-body text-sm text-text-muted hover:text-gold">
+                  Place an Order
+                </Link>
+              </li>
+              <li>
+                <Link href="/dealer" className="font-body text-sm text-text-muted hover:text-gold">
+                  Dealer Login
+                </Link>
+              </li>
+              <li>
                 <Link href="/quote" className="font-body text-sm text-text-muted hover:text-gold">
                   Get a Quote
                 </Link>

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { staffOnly } from '../access/roles'
 
 export const Builds: CollectionConfig = {
   slug: 'builds',
@@ -8,6 +9,9 @@ export const Builds: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: staffOnly,
+    update: staffOnly,
+    delete: staffOnly,
   },
   fields: [
     {

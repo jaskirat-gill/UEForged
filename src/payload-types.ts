@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    dealers: DealerAuthOperations;
   };
   blocks: {};
   collections: {
@@ -75,6 +76,8 @@ export interface Config {
     builds: Build;
     testimonials: Testimonial;
     inquiries: Inquiry;
+    orders: Order;
+    dealers: Dealer;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +93,8 @@ export interface Config {
     builds: BuildsSelect<false> | BuildsSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    dealers: DealersSelect<false> | DealersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -108,7 +113,7 @@ export interface Config {
     'wheel-pricing': WheelPricingSelect<false> | WheelPricingSelect<true>;
   };
   locale: null;
-  user: User;
+  user: User | Dealer;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -131,6 +136,36 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+export interface DealerAuthOperations {
+  forgotPassword:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+  login:
+    | {
+        email: string;
+        password: string;
+      }
+    | {
+        password: string;
+        username: string;
+      };
+  registerFirstUser: {
+    password: string;
+    username: string;
+    email?: string;
+  };
+  unlock:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -383,6 +418,125 @@ export interface Inquiry {
   createdAt: string;
 }
 /**
+ * Orders placed through the /order page on the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  orderNumber?: string | null;
+  status: 'new' | 'reviewing' | 'rendering' | 'awaiting_deposit' | 'production' | 'shipped' | 'delivered' | 'cancelled';
+  source?: ('website' | 'dealer') | null;
+  /**
+   * Set when a dealer places the order
+   */
+  dealer?: (string | null) | Dealer;
+  customerRef?: string | null;
+  vehicleSummary?: string | null;
+  name: string;
+  email: string;
+  phone?: string | null;
+  shipTo?: {
+    city?: string | null;
+    region?: string | null;
+    country?: string | null;
+  };
+  vehicle: {
+    year: string;
+    make: string;
+    model: string;
+    trim?: string | null;
+  };
+  modifications?: {
+    suspension?: ('stock' | 'springs' | 'coilovers' | 'air' | 'lifted') | null;
+    bigBrakeKit?: boolean | null;
+    brakeDetails?: string | null;
+    widebody?: boolean | null;
+    currentTires?: string | null;
+    other?: string | null;
+  };
+  /**
+   * Design chosen by the customer, if any
+   */
+  wheel?: (string | null) | Wheel;
+  /**
+   * Custom design request or reference, if no catalog design was chosen
+   */
+  designNotes?: string | null;
+  construction?: string | null;
+  finish?: string | null;
+  specMode: 'custom' | 'recommend';
+  staggered?: boolean | null;
+  front?: {
+    diameter?: string | null;
+    width?: string | null;
+    offset?: string | null;
+  };
+  rear?: {
+    diameter?: string | null;
+    width?: string | null;
+    offset?: string | null;
+  };
+  boltPattern?: string | null;
+  centreBore?: string | null;
+  quantity?: number | null;
+  lipEngraving?: string | null;
+  centreCaps?: string | null;
+  budget?: string | null;
+  neededBy?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Authorized dealer accounts for the dealer portal at /dealer. Create the username and password here and send them to the dealer.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers".
+ */
+export interface Dealer {
+  id: string;
+  companyName: string;
+  contactName?: string | null;
+  phone?: string | null;
+  /**
+   * City, province / state or territory served
+   */
+  region?: string | null;
+  /**
+   * Taken off retail prices in this dealer’s price chart.
+   */
+  discountPercent: number;
+  /**
+   * Untick to block this dealer from logging in.
+   */
+  active?: boolean | null;
+  /**
+   * Internal only. Dealers never see this.
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email?: string | null;
+  username: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'dealers';
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -437,12 +591,25 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'inquiries';
         value: string | Inquiry;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'dealers';
+        value: string | Dealer;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'dealers';
+        value: string | Dealer;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -452,10 +619,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'dealers';
+        value: string | Dealer;
+      };
   key?: string | null;
   value?:
     | {
@@ -688,6 +860,106 @@ export interface InquiriesSelect<T extends boolean = true> {
   status?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  source?: T;
+  dealer?: T;
+  customerRef?: T;
+  vehicleSummary?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  shipTo?:
+    | T
+    | {
+        city?: T;
+        region?: T;
+        country?: T;
+      };
+  vehicle?:
+    | T
+    | {
+        year?: T;
+        make?: T;
+        model?: T;
+        trim?: T;
+      };
+  modifications?:
+    | T
+    | {
+        suspension?: T;
+        bigBrakeKit?: T;
+        brakeDetails?: T;
+        widebody?: T;
+        currentTires?: T;
+        other?: T;
+      };
+  wheel?: T;
+  designNotes?: T;
+  construction?: T;
+  finish?: T;
+  specMode?: T;
+  staggered?: T;
+  front?:
+    | T
+    | {
+        diameter?: T;
+        width?: T;
+        offset?: T;
+      };
+  rear?:
+    | T
+    | {
+        diameter?: T;
+        width?: T;
+        offset?: T;
+      };
+  boltPattern?: T;
+  centreBore?: T;
+  quantity?: T;
+  lipEngraving?: T;
+  centreCaps?: T;
+  budget?: T;
+  neededBy?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers_select".
+ */
+export interface DealersSelect<T extends boolean = true> {
+  companyName?: T;
+  contactName?: T;
+  phone?: T;
+  region?: T;
+  discountPercent?: T;
+  active?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  username?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

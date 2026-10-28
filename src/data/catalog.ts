@@ -462,7 +462,7 @@ export const catalog = {
   cta: {
     heading: 'Commission your set',
     body: 'Tell us your car and your vision. We will come back with fitment, a rendering and a quote.',
-    href: '/quote',
+    href: '/order',
     label: 'Begin a Commission',
   },
 }

@@ -1,10 +1,12 @@
 import type { GlobalConfig } from 'payload'
+import { staffOnly } from '../access/roles'
 
 export const WheelPricing: GlobalConfig = {
   slug: 'wheel-pricing',
   label: 'Wheel Pricing Rules',
   access: {
     read: () => true,
+    update: staffOnly,
   },
   fields: [
     {
