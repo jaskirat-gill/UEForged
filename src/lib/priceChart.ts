@@ -36,7 +36,11 @@ export function buildPriceChart(
 
   const columns: PricingOption[] = [
     ...(constructions.length ? constructions : [{ label: 'Base', value: 'base', priceDelta: 0 }]),
-    ...beadlocks.filter((b) => b.priceDelta > 0).map((b) => ({ ...b, label: `${b.label} (monoblock)` })),
+    // One beadlock column: "rear only" options use the same per-wheel price, just on fewer wheels.
+    ...beadlocks
+      .filter((b) => b.priceDelta > 0 && !/rear/i.test(`${b.value} ${b.label}`))
+      .slice(0, 1)
+      .map((b) => ({ ...b, label: `${b.label} (monoblock)` })),
   ]
 
   const rows =

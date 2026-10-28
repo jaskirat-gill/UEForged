@@ -17,6 +17,7 @@ import { Testimonials } from './collections/Testimonials'
 import { Inquiries } from './collections/Inquiries'
 import { Orders } from './collections/Orders'
 import { Dealers } from './collections/Dealers'
+import { OrderMedia } from './collections/OrderMedia'
 import { SiteSettings } from './globals/SiteSettings'
 import { WheelPricing } from './globals/WheelPricing'
 
@@ -41,7 +42,7 @@ export default buildConfig({
     },
   },
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || undefined,
-  collections: [Users, Media, Finishes, Series, Wheels, Builds, Testimonials, Inquiries, Orders, Dealers],
+  collections: [Users, Media, Finishes, Series, Wheels, Builds, Testimonials, Inquiries, Orders, Dealers, OrderMedia],
   globals: [SiteSettings, WheelPricing],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

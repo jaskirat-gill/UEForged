@@ -55,3 +55,31 @@ export async function sendOrderNotification(
     html,
   })
 }
+
+/** Emails the site contact address when a dealer comments on an order. */
+export async function sendOrderCommentNotification(
+  payload: Payload,
+  comment: { orderNumber: string; dealerName: string; message: string },
+): Promise<void> {
+  const settings = await payload.findGlobal({ slug: 'site-settings' })
+  const contactEmail = settings?.contactEmail as string | undefined
+  if (!contactEmail?.trim()) return
+
+  const html =
+    '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:system-ui,sans-serif;line-height:1.5;color:#333;">' +
+    '<p><strong>' +
+    escapeHtml(comment.dealerName) +
+    '</strong> commented on order <strong>' +
+    escapeHtml(comment.orderNumber) +
+    '</strong>:</p>' +
+    '<blockquote style="margin:0;padding:8px 12px;border-left:3px solid #c9a84c;white-space:pre-wrap;">' +
+    escapeHtml(comment.message) +
+    '</blockquote>' +
+    '<p style="margin-top:16px;font-size:14px;color:#666;">Reply by adding a comment to the order in Admin → Orders.</p></body></html>'
+
+  await payload.sendEmail({
+    to: contactEmail,
+    subject: `Dealer comment on ${comment.orderNumber} from ${comment.dealerName}`,
+    html,
+  })
+}

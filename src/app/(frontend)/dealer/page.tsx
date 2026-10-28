@@ -8,6 +8,8 @@ import { getCurrentDealer } from '@/lib/dealerAuth'
 import { buildPriceChart } from '@/lib/priceChart'
 import { getUsdCadRate, usdToCad } from '@/lib/exchangeRate'
 import { ButtonLink } from '@/components/ui/Button'
+import { orderStatusLabel } from '@/lib/orderStatus'
+import { formatMoney } from '@/lib/orderBilling'
 import { logoutDealer } from './actions'
 
 export const dynamic = 'force-dynamic'
@@ -17,16 +19,6 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  new: 'New',
-  reviewing: 'Reviewing fitment',
-  rendering: 'Rendering',
-  awaiting_deposit: 'Awaiting deposit',
-  production: 'In production',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-}
 
 const usd = (n: number) => `$${n.toLocaleString('en-US')}`
 
@@ -146,7 +138,7 @@ export default async function DealerDashboard() {
               <table className="w-full font-body text-sm">
                 <thead className="bg-surface">
                   <tr>
-                    {['Order', 'Placed', 'Customer ref', 'Vehicle', 'Design', 'Status'].map((h) => (
+                    {['Order', 'Placed', 'Customer ref', 'Vehicle', 'Design', 'Status', 'Balance', ''].map((h) => (
                       <th key={h} scope="col" className="text-left px-4 py-3 text-xs uppercase tracking-wider text-text-muted">
                         {h}
                       </th>
@@ -155,8 +147,12 @@ export default async function DealerDashboard() {
                 </thead>
                 <tbody>
                   {orders.docs.map((o) => (
-                    <tr key={o.id} className="border-t border-border">
-                      <td className="px-4 py-3 font-semibold text-text whitespace-nowrap">{o.orderNumber}</td>
+                    <tr key={o.id} className="border-t border-border hover:bg-surface transition-colors">
+                      <td className="px-4 py-3 font-semibold whitespace-nowrap">
+                        <Link href={`/dealer/orders/${o.orderNumber}`} className="text-text hover:text-gold">
+                          {o.orderNumber}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3 text-text-muted whitespace-nowrap">
                         {new Date(o.createdAt).toLocaleDateString('en-CA')}
                       </td>
@@ -165,7 +161,18 @@ export default async function DealerDashboard() {
                       <td className="px-4 py-3 text-text">
                         {typeof o.wheel === 'object' && o.wheel ? (o.wheel as Wheel).name : 'Custom'}
                       </td>
-                      <td className="px-4 py-3 text-gold whitespace-nowrap">{STATUS_LABELS[o.status] ?? o.status}</td>
+                      <td className="px-4 py-3 text-gold whitespace-nowrap">{orderStatusLabel(o.status)}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-text">
+                        {o.billing?.total ? formatMoney(o.billing.balanceDue, o.billing.currency) : <span className="text-text-muted">Quote pending</span>}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-right">
+                        <Link
+                          href={`/dealer/orders/${o.orderNumber}`}
+                          className="font-body text-xs uppercase tracking-wider text-gold hover:text-gold-highlight"
+                        >
+                          View details →
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

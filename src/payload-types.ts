@@ -78,6 +78,7 @@ export interface Config {
     inquiries: Inquiry;
     orders: Order;
     dealers: Dealer;
+    'order-media': OrderMedia;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -95,6 +96,7 @@ export interface Config {
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     dealers: DealersSelect<false> | DealersSelect<true>;
+    'order-media': OrderMediaSelect<false> | OrderMediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -433,6 +435,11 @@ export interface Order {
    */
   dealer?: (string | null) | Dealer;
   customerRef?: string | null;
+  /**
+   * Calculated from Pricing & payments
+   */
+  paymentStatus?: ('not_quoted' | 'unpaid' | 'partially_paid' | 'deposit_paid' | 'paid' | 'overpaid') | null;
+  balanceDue?: number | null;
   vehicleSummary?: string | null;
   name: string;
   email: string;
@@ -486,6 +493,87 @@ export interface Order {
   budget?: string | null;
   neededBy?: string | null;
   notes?: string | null;
+  /**
+   * Shown to the dealer on their order page. Totals, tax and balance are calculated when you save.
+   */
+  billing?: {
+    currency?: ('USD' | 'CAD') | null;
+    lineItems?:
+      | {
+          description: string;
+          quantity?: number | null;
+          unitPrice: number;
+          lineTotal?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Amount off the subtotal
+     */
+    discount?: number | null;
+    shipping?: number | null;
+    /**
+     * e.g. 5 for GST, 12 for GST + BC PST
+     */
+    taxRate?: number | null;
+    depositRequired?: number | null;
+    subtotal?: number | null;
+    taxAmount?: number | null;
+    total?: number | null;
+    amountPaid?: number | null;
+    balanceDue?: number | null;
+    payments?:
+      | {
+          date: string;
+          amount: number;
+          method?: ('E-transfer' | 'Wire / T/T' | 'Credit card' | 'PayPal' | 'Cash' | 'Cheque' | 'Other') | null;
+          reference?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Shown to the dealer, e.g. how to pay the deposit or balance.
+     */
+    paymentInstructions?: string | null;
+  };
+  /**
+   * Your costs and margin. Hidden from dealers.
+   */
+  costs?: {
+    supplierCost?: number | null;
+    freightCost?: number | null;
+    otherCost?: number | null;
+    totalCost?: number | null;
+    margin?: number | null;
+    marginPercent?: number | null;
+    costNotes?: string | null;
+  };
+  /**
+   * Renderings, production and finished photos. Dealers see these on their order page, grouped by stage. Tick "Internal" to keep a photo staff-only.
+   */
+  photos?:
+    | {
+        image: string | OrderMedia;
+        stage: 'rendering' | 'production' | 'finished' | 'other';
+        caption?: string | null;
+        addedAt?: string | null;
+        internal?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Conversation with the dealer, shown on their order page. Add a row to reply. Tick "Internal" to hide a note from the dealer.
+   */
+  comments?:
+    | {
+        message: string;
+        author?: ('staff' | 'dealer') | null;
+        authorName?: string | null;
+        createdAt?: string | null;
+        internal?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -535,6 +623,32 @@ export interface Dealer {
     | null;
   password?: string | null;
   collection: 'dealers';
+}
+/**
+ * Upload these from an order’s Photos section. Only staff and the order’s dealer can see them.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-media".
+ */
+export interface OrderMedia {
+  id: string;
+  alt?: string | null;
+  order?: (string | null) | Order;
+  /**
+   * Set automatically from the order
+   */
+  dealer?: (string | null) | Dealer;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -599,6 +713,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'dealers';
         value: string | Dealer;
+      } | null)
+    | ({
+        relationTo: 'order-media';
+        value: string | OrderMedia;
       } | null);
   globalSlug?: string | null;
   user:
@@ -871,6 +989,8 @@ export interface OrdersSelect<T extends boolean = true> {
   source?: T;
   dealer?: T;
   customerRef?: T;
+  paymentStatus?: T;
+  balanceDue?: T;
   vehicleSummary?: T;
   name?: T;
   email?: T;
@@ -928,6 +1048,70 @@ export interface OrdersSelect<T extends boolean = true> {
   budget?: T;
   neededBy?: T;
   notes?: T;
+  billing?:
+    | T
+    | {
+        currency?: T;
+        lineItems?:
+          | T
+          | {
+              description?: T;
+              quantity?: T;
+              unitPrice?: T;
+              lineTotal?: T;
+              id?: T;
+            };
+        discount?: T;
+        shipping?: T;
+        taxRate?: T;
+        depositRequired?: T;
+        subtotal?: T;
+        taxAmount?: T;
+        total?: T;
+        amountPaid?: T;
+        balanceDue?: T;
+        payments?:
+          | T
+          | {
+              date?: T;
+              amount?: T;
+              method?: T;
+              reference?: T;
+              id?: T;
+            };
+        paymentInstructions?: T;
+      };
+  costs?:
+    | T
+    | {
+        supplierCost?: T;
+        freightCost?: T;
+        otherCost?: T;
+        totalCost?: T;
+        margin?: T;
+        marginPercent?: T;
+        costNotes?: T;
+      };
+  photos?:
+    | T
+    | {
+        image?: T;
+        stage?: T;
+        caption?: T;
+        addedAt?: T;
+        internal?: T;
+        id?: T;
+      };
+  comments?:
+    | T
+    | {
+        message?: T;
+        author?: T;
+        authorName?: T;
+        createdAt?: T;
+        internal?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -960,6 +1144,26 @@ export interface DealersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-media_select".
+ */
+export interface OrderMediaSelect<T extends boolean = true> {
+  alt?: T;
+  order?: T;
+  dealer?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
