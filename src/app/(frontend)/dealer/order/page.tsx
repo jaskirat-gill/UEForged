@@ -41,7 +41,7 @@ export default async function DealerOrderPage({ searchParams }: PageProps) {
         <p className="mt-10 font-body text-xs uppercase tracking-[0.4em] text-gold">Dealer order</p>
         <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-widest text-text uppercase">Place an order</h1>
         <p className="mt-6 font-serif text-xl text-text-muted max-w-2xl">
-          Orders placed here are linked to {dealer.companyName} and priced at your dealer rate. Track their status
+          Orders placed here are linked to {dealer.companyName} and priced with your dealer concession. Track their status
           on your dealer portal.
         </p>
         <div className="mt-16">

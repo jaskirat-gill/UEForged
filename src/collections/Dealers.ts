@@ -47,14 +47,14 @@ export const Dealers: CollectionConfig = {
     {
       name: 'discountPercent',
       type: 'number',
-      label: 'Dealer discount (%)',
+      label: 'Dealer concession (%)',
       defaultValue: 0,
       min: 0,
       max: 60,
       required: true,
       admin: {
         position: 'sidebar',
-        description: 'Taken off retail prices in this dealer’s price chart.',
+        description: 'Percentage off retail list price, applied to this dealer’s prices in the dealer portal.',
       },
     },
     {

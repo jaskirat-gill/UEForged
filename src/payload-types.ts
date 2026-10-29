@@ -593,7 +593,7 @@ export interface Dealer {
    */
   region?: string | null;
   /**
-   * Taken off retail prices in this dealer’s price chart.
+   * Percentage off retail list price, applied to this dealer’s prices in the dealer portal.
    */
   discountPercent: number;
   /**

@@ -20,19 +20,21 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
-type Row = [label: string, value: string | null | undefined]
+/** [label, value, wide] — wide rows span both columns (long text such as notes). */
+type Row = [label: string, value: string | null | undefined, wide?: boolean]
 
+/** Compact two-column card: small label above each value. */
 function DetailCard({ title, rows }: { title: string; rows: Row[] }) {
   const shown = rows.filter(([, v]) => v && String(v).trim())
   if (shown.length === 0) return null
   return (
-    <section className="border border-border bg-surface p-6">
-      <h2 className="font-display text-2xl tracking-wider text-text uppercase">{title}</h2>
-      <dl className="mt-4 divide-y divide-border">
-        {shown.map(([label, value]) => (
-          <div key={label} className="grid grid-cols-5 gap-4 py-3">
-            <dt className="col-span-2 font-body text-xs uppercase tracking-[0.2em] text-text-muted pt-0.5">{label}</dt>
-            <dd className="col-span-3 font-body text-sm text-text whitespace-pre-wrap">{value}</dd>
+    <section className="border border-border bg-surface p-5">
+      <h2 className="font-display text-xl tracking-wider text-text uppercase">{title}</h2>
+      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+        {shown.map(([label, value, wide]) => (
+          <div key={label} className={cn('min-w-0', wide && 'col-span-2')}>
+            <dt className="font-body text-[10px] uppercase tracking-[0.2em] text-text-muted">{label}</dt>
+            <dd className="mt-0.5 font-body text-sm text-text whitespace-pre-wrap break-words">{value}</dd>
           </div>
         ))}
       </dl>
@@ -68,7 +70,7 @@ export default async function DealerOrderDetail({ params }: { params: Promise<{ 
 
   return (
     <div className="pt-20 min-h-screen">
-      <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 space-y-12">
+      <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 space-y-8">
         <Link href="/dealer" className="inline-block font-body text-sm uppercase tracking-wider text-text-muted hover:text-gold">
           ← Dealer portal
         </Link>
@@ -92,90 +94,88 @@ export default async function DealerOrderDetail({ params }: { params: Promise<{ 
           <OrderProgress status={order.status} />
         </section>
 
-        <OrderBilling order={order} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+          <DetailCard
+            title="Vehicle"
+            rows={[
+              ['Vehicle', order.vehicleSummary, true],
+              ['Suspension', SUSPENSION_OPTIONS.find((o) => o.value === m?.suspension)?.label],
+              ['Widebody', m?.widebody ? 'Yes' : 'No'],
+              ['Big brake kit', m?.bigBrakeKit ? m.brakeDetails || 'Yes' : 'No', Boolean(m?.brakeDetails)],
+              ['Current tyres', m?.currentTires, true],
+              ['Other mods', m?.other, true],
+            ]}
+          />
+          <DetailCard
+            title="Wheels"
+            rows={[
+              ['Design', wheel ? wheel.name : 'Custom / undecided'],
+              ['Quantity', order.quantity ? String(order.quantity) : ''],
+              ['Construction', order.construction || 'We recommend'],
+              ['Finish', order.finish || 'We recommend'],
+              ['Specs', custom ? 'Supplied by you' : 'UEForged to recommend', !custom],
+              ['Front', custom ? spec(order.front) : ''],
+              ['Rear', custom && order.staggered ? spec(order.rear) : ''],
+              ['Bolt pattern', order.boltPattern],
+              ['Centre bore', order.centreBore],
+              ['Lip engraving', order.lipEngraving],
+              ['Centre caps', order.centreCaps],
+              ['Design notes', order.designNotes, true],
+            ]}
+          />
+          <DetailCard
+            title="Contact & delivery"
+            rows={[
+              ['Name', order.name],
+              ['Phone', order.phone],
+              ['Email', order.email, true],
+              ['Ship to', [order.shipTo?.city, order.shipTo?.region, order.shipTo?.country].filter(Boolean).join(', '), true],
+              ['Budget', order.budget],
+              ['Needed by', order.neededBy],
+              ['Notes', order.notes, true],
+            ]}
+          />
+        </div>
 
         <OrderPhotos photos={order.photos ?? []} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 space-y-8">
-            <DetailCard
-              title="Vehicle"
-              rows={[
-                ['Vehicle', order.vehicleSummary],
-                ['Suspension', SUSPENSION_OPTIONS.find((o) => o.value === m?.suspension)?.label],
-                ['Big brake kit', m?.bigBrakeKit ? m.brakeDetails || 'Yes' : 'No'],
-                ['Widebody', m?.widebody ? 'Yes' : 'No'],
-                ['Current tyres', m?.currentTires],
-                ['Other mods', m?.other],
-              ]}
-            />
-            <DetailCard
-              title="Wheels"
-              rows={[
-                ['Design', wheel ? wheel.name : 'Custom / undecided'],
-                ['Design notes', order.designNotes],
-                ['Construction', order.construction || 'UEForged to recommend'],
-                ['Finish', order.finish || 'UEForged to recommend'],
-                ['Specs', custom ? 'Supplied by you' : 'UEForged to recommend'],
-                ['Front', custom ? spec(order.front) : ''],
-                ['Rear', custom && order.staggered ? spec(order.rear) : ''],
-                ['Bolt pattern', order.boltPattern],
-                ['Centre bore', order.centreBore],
-                ['Quantity', order.quantity ? String(order.quantity) : ''],
-                ['Lip engraving', order.lipEngraving],
-                ['Centre caps', order.centreCaps],
-              ]}
-            />
-            <DetailCard
-              title="Contact & delivery"
-              rows={[
-                ['Name', order.name],
-                ['Email', order.email],
-                ['Phone', order.phone],
-                ['Ship to', [order.shipTo?.city, order.shipTo?.region, order.shipTo?.country].filter(Boolean).join(', ')],
-                ['Budget', order.budget],
-                ['Needed by', order.neededBy],
-                ['Notes', order.notes],
-              ]}
-            />
-          </div>
+        <OrderBilling order={order} />
 
-          <section className="lg:col-span-5 border border-border bg-surface p-6 h-fit lg:sticky lg:top-28">
-            <h2 className="font-display text-2xl tracking-wider text-text uppercase">Comments</h2>
-            {comments.length === 0 ? (
-              <p className="mt-4 font-body text-sm text-text-muted">
-                No comments yet. Ask a question or send an update and UEForged will reply here.
-              </p>
-            ) : (
-              <ol className="mt-6 space-y-4">
-                {comments.map((c) => {
-                  const fromUs = c.author !== 'dealer'
-                  return (
-                    <li
-                      key={c.id ?? `${c.createdAt}-${c.message.slice(0, 12)}`}
-                      className={cn('border p-4', fromUs ? 'border-gold/40 bg-gold/5 mr-6' : 'border-border bg-bg ml-6')}
-                    >
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className={cn('font-body text-xs uppercase tracking-wider', fromUs ? 'text-gold' : 'text-text')}>
-                          {fromUs ? 'UEForged' : c.authorName || dealer.companyName}
-                        </span>
-                        {c.createdAt && (
-                          <time className="font-body text-[11px] text-text-muted" dateTime={c.createdAt}>
-                            {new Date(c.createdAt).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' })}
-                          </time>
-                        )}
-                      </div>
-                      <p className="mt-2 font-body text-sm text-text whitespace-pre-wrap">{c.message}</p>
-                    </li>
-                  )
-                })}
-              </ol>
-            )}
-            <div className="mt-8 border-t border-border pt-6">
-              <CommentForm orderNumber={order.orderNumber ?? ''} />
-            </div>
-          </section>
-        </div>
+        <section className="border border-border bg-surface p-6">
+          <h2 className="font-display text-2xl tracking-wider text-text uppercase">Comments</h2>
+          {comments.length === 0 ? (
+            <p className="mt-4 font-body text-sm text-text-muted">
+              No comments yet. Ask a question or send an update and UEForged will reply here.
+            </p>
+          ) : (
+            <ol className="mt-6 space-y-4 max-w-3xl">
+              {comments.map((c) => {
+                const fromUs = c.author !== 'dealer'
+                return (
+                  <li
+                    key={c.id ?? `${c.createdAt}-${c.message.slice(0, 12)}`}
+                    className={cn('border p-4', fromUs ? 'border-gold/40 bg-gold/5 mr-8' : 'border-border bg-bg ml-8')}
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className={cn('font-body text-xs uppercase tracking-wider', fromUs ? 'text-gold' : 'text-text')}>
+                        {fromUs ? 'UEForged' : c.authorName || dealer.companyName}
+                      </span>
+                      {c.createdAt && (
+                        <time className="font-body text-[11px] text-text-muted" dateTime={c.createdAt}>
+                          {new Date(c.createdAt).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' })}
+                        </time>
+                      )}
+                    </div>
+                    <p className="mt-2 font-body text-sm text-text whitespace-pre-wrap">{c.message}</p>
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+          <div className="mt-8 border-t border-border pt-6 max-w-3xl">
+            <CommentForm orderNumber={order.orderNumber ?? ''} />
+          </div>
+        </section>
       </div>
     </div>
   )
