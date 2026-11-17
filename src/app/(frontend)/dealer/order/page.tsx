@@ -29,6 +29,10 @@ export default async function DealerOrderPage({ searchParams }: PageProps) {
     name: w.name,
     series: typeof w.series === 'object' && w.series ? w.series.name : '',
     slug: w.slug,
+    image: (() => {
+      const first = w.images?.[0]?.image
+      return typeof first === 'object' && first ? (first.url ?? null) : null
+    })(),
   }))
   const prefill = wheel ? wheels.find((w) => w.id === wheel || w.slug === wheel)?.id : undefined
 
@@ -46,7 +50,7 @@ export default async function DealerOrderPage({ searchParams }: PageProps) {
         </p>
         <div className="mt-16">
           <OrderForm
-            wheels={wheels.map(({ id, name, series }) => ({ id, name, series }))}
+            wheels={wheels.map(({ id, name, series, image }) => ({ id, name, series, image }))}
             prefilledWheelId={prefill ?? null}
             dealer={{
               companyName: dealer.companyName,

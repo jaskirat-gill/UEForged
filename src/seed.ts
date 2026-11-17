@@ -14,6 +14,7 @@
  */
 import { getPayload } from 'payload'
 import config from './payload.config'
+import { FINISHES } from './lib/finishes'
 
 async function seed() {
   const payload = await getPayload({ config: await config })
@@ -57,15 +58,12 @@ async function seed() {
   ])
 
   await Promise.all(
-    [
-      { name: 'Gloss Black', slug: 'gloss-black', hex: '#0d0d0d', description: 'Deep, liquid and timeless.' },
-      { name: 'Matte Black', slug: 'matte-black', hex: '#1a1a1a', description: 'Stealth, with no reflection.' },
-      { name: 'Brushed Aluminium', slug: 'brushed-aluminium', hex: '#b5b5b5', description: 'Fine grain, clear sealed.' },
-      { name: 'High Polish', slug: 'high-polish', hex: '#e6e6e6', description: 'A mirror face with a machined edge.' },
-      { name: 'Chrome', slug: 'chrome', hex: '#d9e1e6', description: 'Brilliant, bright and bold.' },
-      { name: 'Carbon Fibre', slug: 'carbon-fibre', hex: '#222222', description: 'For beadlock rings and accents.' },
-      { name: 'Custom Colour', slug: 'custom-colour', hex: '#c9a84c', description: 'Any shade, matched to your car.' },
-    ].map((data) => payload.create({ collection: 'finishes', data })),
+    FINISHES.map((f) =>
+      payload.create({
+        collection: 'finishes',
+        data: { name: f.name, slug: f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'), description: f.description },
+      }),
+    ),
   )
 
   await Promise.all([

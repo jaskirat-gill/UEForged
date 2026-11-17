@@ -204,7 +204,7 @@ export default async function DealerResources() {
           </Section>
 
           <Section id="finishes" title="Finishes" intro="Finishes can be mixed across face, barrel and ring.">
-            <ul className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6">
+            <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
               {catalog.finishes.map((f) => (
                 <li key={f.name} className="text-center">
                   <div className="relative mx-auto h-20 w-20 rounded-full border border-border p-1">

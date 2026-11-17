@@ -20,6 +20,10 @@ async function getWheelOptions(): Promise<(WheelOption & { slug: string })[]> {
     name: w.name,
     series: typeof w.series === 'object' && w.series ? w.series.name : '',
     slug: w.slug,
+    image: (() => {
+      const first = w.images?.[0]?.image
+      return typeof first === 'object' && first ? (first.url ?? null) : null
+    })(),
   }))
 }
 
@@ -44,11 +48,11 @@ export default async function OrderPage({ searchParams }: PageProps) {
           </h1>
           <p className="mt-6 font-serif text-xl md:text-2xl text-text-muted max-w-2xl">
             Tell us about your car and how you want it to sit. Supply your own specs, or let our team
-            recommend them. Nothing is charged until you approve your 3D rendering.
+            recommend them. A non-refundable rendering deposit starts your 3D rendering.
           </p>
         </FadeUpOnScroll>
         <div className="mt-16">
-          <OrderForm wheels={wheels.map(({ id, name, series }) => ({ id, name, series }))} prefilledWheelId={prefill ?? null} />
+          <OrderForm wheels={wheels.map(({ id, name, series, image }) => ({ id, name, series, image }))} prefilledWheelId={prefill ?? null} />
         </div>
       </div>
     </div>

@@ -57,6 +57,8 @@ export interface CatalogStep {
   description: string
 }
 
+import { FINISHES } from '@/lib/finishes'
+
 const img = (file: string, alt: string, focus?: string): CatalogImage => ({
   src: `/catalog/${file}`,
   alt,
@@ -107,10 +109,10 @@ export const catalog = {
     {
       code: 'UE-S02',
       series: 'Street',
-      finish: 'Dark Glaze High Polish',
+      finish: 'Dark Tinted Polish',
       summary:
-        'Five split spokes sweep from a deeply concave centre to the lip. The dark glaze over a high polish reads black in shade and chrome in sun. Shown staggered at 20 x 9.5 and 21 x 12 for a Corvette C8.',
-      hero: img('s02-face.jpg', 'UE-S02 in dark glaze high polish, face on'),
+        'Five split spokes sweep from a deeply concave centre to the lip. The dark tinted polish reads black in shade and bright in sun. Shown staggered at 20 x 9.5 and 21 x 12 for a Corvette C8.',
+      hero: img('s02-face.jpg', 'UE-S02 in dark tinted polish, face on'),
       gallery: [
         img('s02-three-quarter.jpg', 'UE-S02, three-quarter view'),
         img('s02-spoke.jpg', 'UE-S02 split-spoke detail'),
@@ -119,7 +121,7 @@ export const catalog = {
       specs: [
         { label: 'Construction', value: 'Forged monoblock' },
         { label: 'Fitment', value: 'Staggered, made to your PCD, offset and hub bore' },
-        { label: 'Finish', value: 'Dark glaze over high polish' },
+        { label: 'Finish', value: 'Dark tinted polish' },
       ],
       wheelSlug: 'ue-s02',
     },
@@ -377,15 +379,7 @@ export const catalog = {
     },
   ] satisfies CatalogConstruction[],
 
-  finishes: [
-    { name: 'Gloss Black', description: 'Deep, liquid and timeless.', swatch: 'linear-gradient(135deg,#2a2a2a 0%,#050505 55%,#1c1c1c 100%)' },
-    { name: 'Matte Black', description: 'Stealth, with no reflection.', swatch: '#151515' },
-    { name: 'Brushed Aluminium', description: 'Fine grain, clear sealed.', swatch: 'repeating-linear-gradient(90deg,#b9b9b9 0 2px,#a3a3a3 2px 4px,#c8c8c8 4px 5px)' },
-    { name: 'High Polish', description: 'A mirror face with a machined edge.', swatch: 'linear-gradient(135deg,#f4f4f4 0%,#9a9a9a 40%,#ffffff 60%,#8a8a8a 100%)' },
-    { name: 'Chrome', description: 'Brilliant, bright and bold.', swatch: 'linear-gradient(160deg,#ffffff 0%,#7c8a96 35%,#e9eef2 55%,#46525c 100%)' },
-    { name: 'Carbon Fibre', description: 'For beadlock rings and accents.', swatch: 'repeating-linear-gradient(45deg,#1b1b1b 0 4px,#2b2b2b 4px 8px)' },
-    { name: 'Custom Colour', description: 'Any shade, matched to your car.', swatch: 'conic-gradient(from 90deg,#c9a84c,#8b1d1d,#1d3a8b,#1d8b5a,#c9a84c)' },
-  ] satisfies CatalogFinish[],
+  finishes: FINISHES satisfies CatalogFinish[],
 
   specSheet: [
     { label: 'Diameters', value: '15" to 28"' },
@@ -454,7 +448,7 @@ export const catalog = {
 
   process: [
     { title: 'Consult', description: 'We start with your car, its brakes and the stance and style you want.' },
-    { title: 'Render', description: 'You approve a full 3D rendering before any metal is cut.' },
+    { title: 'Render', description: 'A non-refundable rendering deposit starts your design. You approve the full 3D rendering before any metal is cut.' },
     { title: 'Forge', description: 'Each wheel is forged, CNC machined and lightened to your exact specification.' },
     { title: 'Finish', description: 'Finished, engraved and inspected, then shipped to your door.' },
   ] satisfies CatalogStep[],

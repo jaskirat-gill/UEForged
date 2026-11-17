@@ -13,13 +13,14 @@ import { cn } from '@/lib/utils'
 import {
   orderSchema,
   CONSTRUCTION_OPTIONS,
-  FINISH_OPTIONS,
   SUSPENSION_OPTIONS,
   type OrderFormValues,
 } from '@/lib/orderSchema'
 import { submitOrder } from './actions'
 
-export type WheelOption = { id: string; name: string; series: string }
+import { DesignPicker, FinishPicker, type WheelOption } from './Pickers'
+
+export type { WheelOption }
 
 export type DealerContext = { companyName: string; contactName?: string | null; email?: string | null; phone?: string | null }
 
@@ -106,9 +107,8 @@ export function OrderForm({ wheels, prefilledWheelId, dealer }: OrderFormProps) 
         <p className="font-body text-xs uppercase tracking-[0.4em] text-gold">Order received</p>
         <p className="mt-4 font-display text-5xl md:text-6xl tracking-widest text-text">{orderNumber}</p>
         <p className="mt-6 font-serif text-xl text-text-muted max-w-xl mx-auto">
-          Thank you. We will review your fitment and come back to you with specs, a 3D rendering and a
-          quote. Nothing is charged until you approve the rendering.
-        </p>
+          Thank you. We will review your fitment and send you specs and a quote. Your 3D rendering
+          begins once the non-refundable rendering deposit is paid; we will send you the details.</p>
         <p className="mt-4 font-body text-sm text-text-muted">Keep this reference for any follow-up.</p>
         <Link
           href={dealer ? '/dealer' : '/catalog'}
@@ -160,22 +160,16 @@ export function OrderForm({ wheels, prefilledWheelId, dealer }: OrderFormProps) 
       </Section>
 
       <Section step="III" title="Design">
-        <Select
-          id="design-wheel"
-          label="Design"
-          placeholder="Custom design / not sure yet"
-          options={wheels.map((w) => ({ value: w.id, label: `${w.name} · ${w.series}` }))}
-          {...register('wheelId')}
-        />
+        <DesignPicker wheels={wheels} selected={watch('wheelId')} register={register('wheelId')} />
         <Textarea
           id="design-notes"
           label="Design notes or reference"
           placeholder="Describe the look you want, or a design you have in mind."
           {...register('designNotes')}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FinishPicker selected={watch('finish')} register={register('finish')} />
+        <div className="md:w-1/2">
           <Select id="design-construction" label="Construction" options={[...CONSTRUCTION_OPTIONS]} {...register('construction')} />
-          <Select id="design-finish" label="Finish" options={[...FINISH_OPTIONS]} {...register('finish')} />
         </div>
       </Section>
 
@@ -271,9 +265,8 @@ export function OrderForm({ wheels, prefilledWheelId, dealer }: OrderFormProps) 
         <label className="flex items-start gap-3 font-body text-sm text-text-muted cursor-pointer max-w-2xl">
           <input type="checkbox" className="mt-1 h-4 w-4 accent-[var(--color-gold)]" {...register('agree')} />
           <span>
-            I understand this places an order request. UEForged will confirm fitment, send a 3D rendering and a
-            quote, and nothing is charged until I approve the rendering.
-          </span>
+            I understand this places an order request. UEForged will confirm fitment and send a quote. A
+            non-refundable rendering deposit is required before my 3D rendering begins.</span>
         </label>
         {errors.agree && <p className="font-body text-sm text-red-500">{errors.agree.message}</p>}
         {submitError && <p className="font-body text-sm text-red-500">{submitError}</p>}

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { FINISHES } from './finishes'
 
 /** Shared by the /order form (client) and the submitOrder action (server). */
 
@@ -25,14 +26,8 @@ export const CONSTRUCTION_OPTIONS = [
 
 export const FINISH_OPTIONS = [
   { value: '', label: 'Recommend for me' },
-  { value: 'Gloss Black', label: 'Gloss Black' },
-  { value: 'Matte Black', label: 'Matte Black' },
-  { value: 'Brushed Aluminium', label: 'Brushed Aluminium' },
-  { value: 'High Polish', label: 'High Polish' },
-  { value: 'Chrome', label: 'Chrome' },
-  { value: 'Carbon Fibre accents', label: 'Carbon Fibre accents' },
-  { value: 'Custom Colour', label: 'Custom Colour (describe in notes)' },
-] as const
+  ...FINISHES.map((f) => ({ value: f.name, label: f.name })),
+]
 
 const spec = z.object({
   diameter: optionalShort,
